@@ -4,6 +4,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+from statsmodels.tsa.seasonal import seasonal_decompose
+from sklearn.cluster import KMeans
+
+
+st.sidebar.page_link("uas_streamlit.py", label="Dashboard")
 
 # Judul dan informasi proyek
 st.title("Dashboard Analisis Bike Sharing")
@@ -101,12 +106,46 @@ ax[1].set_title("Pie Chart Proporsi Penyewaan Sepeda Berdasarkan Rentang Waktu")
 
 st.pyplot(fig)
 
-with st.expander("Hasil Analisis"):
+with st.expander("Hasil Analisis Penyewaan Sepeda Berdasarkan Rentang Waktu"):
     st.write("Berdasarkan perbandingan dan proporsi pada chart di atas menunjukkan bahwa rentang waktu sangat mempengaruhi jumlah penyewaan sepeda.")
     st.write("Dapat dilihat bahwa jumlah penyewaan sepeda tertinggi terjadi pada siang hari, dengan jumlah penyewaan mencapai 1.197.501 atau sekitar 38.72% dari total penyewaan.")
     st.write("Penyewaan sepeda juga cukup tinggi pada pagi hari dengan jumlah 877.142 atau 28.36%.")
     st.write("Sementara itu, jumlah penyewaan sepeda paling rendah terjadi pada sore hari dengan 462.005 penyewaan (14.94%).")
     st.write("Kesimpulannya, waktu siang adalah waktu paling populer untuk penyewaan sepeda, sedangkan sore hari adalah waktu dengan jumlah penyewaan paling sedikit.")
+
+# Mapping kondisi cuaca
+weather_mapping = {
+    1: 'Cerah/Sedikit berawan',
+    2: 'Berawan/Berkabut',
+    3: 'Hujan Salju/Badai',
+    4: 'Cuaca Ekstrim'
+}
+
+# Menambahkan kolom tahun dan kategori cuaca
+day_data['year'] = day_data['yr'].map({0: 'Tahun Pertama', 1: 'Tahun Kedua'})
+day_data['weather_category'] = day_data['weathersit'].map(weather_mapping)
+
+# Mengelompokkan data berdasarkan tahun dan kondisi cuaca
+weather_year_data = day_data.groupby(['year', 'weather_category'])['cnt'].sum().reset_index()
+
+# Visualisasi
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.barplot(x='weather_category', y='cnt', hue='year', data=weather_year_data, palette='coolwarm')
+plt.title("Pengaruh Kondisi Cuaca terhadap Penyewaan Sepeda per Tahun")
+plt.xlabel("Kondisi Cuaca")
+plt.ylabel("Jumlah Penyewaan Sepeda (cnt)")
+plt.legend(title="Tahun", loc='upper right')
+st.pyplot(fig)
+
+with st.expander("Hasil Analisis Pengaruh Kondisi Cuaca terhadap Penyewaan Sepeda per Tahun"):
+    st.write("""
+    1. **Cuaca Cerah/Sedikit Berawan** memiliki jumlah penyewaan sepeda tertinggi di kedua tahun, dengan peningkatan signifikan di tahun kedua.
+    2. **Cuaca Berawan/Berkabut** juga menunjukkan peningkatan jumlah penyewaan di tahun kedua, meskipun tidak sebesar cuaca cerah.
+    3. **Cuaca Hujan Salju/Badai** dan **Cuaca Ekstrem** memiliki jumlah penyewaan yang lebih rendah, dengan sedikit peningkatan di tahun kedua.
+
+    **Kesimpulan:**  
+    Kondisi cuaca cerah dan sedikit berawan tetap menjadi faktor utama yang mempengaruhi jumlah penyewaan sepeda. Peningkatan jumlah penyewaan di tahun kedua menunjukkan pertumbuhan popularitas layanan sepeda, terutama dalam kondisi cuaca yang baik.
+    """)
 
 # Visualisasi berdasarkan cuaca
 st.subheader("Jumlah Penyewaan Sepeda Berdasarkan Kondisi Cuaca")
@@ -131,6 +170,102 @@ ax[1].pie(dataEachWeather['proportion'], labels=dataEachWeather['weather_categor
 ax[1].set_title("Pie Chart Proporsi Penyewaan Sepeda Berdasarkan Kondisi Cuaca")
 
 st.pyplot(fig)
+
+with st.expander("Hasil Analisis Penyewaan Sepeda Berdasarkan Kondisi Cuaca"):
+    st.write("""
+
+    1. **Cuaca Cerah/Sedikit Berawan** memiliki jumlah penyewaan sepeda tertinggi, yaitu **2.175.325 kali penyewaan**, dengan persentase sebesar **70,34%**. Hal ini menunjukkan bahwa pengguna cenderung lebih nyaman menyewa sepeda saat cuaca cerah.
+
+    2. **Cuaca Berawan/Berkabut** memiliki penyewaan sebanyak **764.524 kali (24,72%)**. Meskipun jumlahnya lebih kecil dibandingkan cuaca cerah, penyewaan masih cukup tinggi, menunjukkan bahwa cuaca mendung tidak terlalu menghambat pengguna.
+
+    3. **Cuaca Hujan Salju/Badai** menunjukkan penurunan signifikan dalam jumlah penyewaan, hanya **152.633 kali (4,94%)**. Ini masuk akal karena kondisi cuaca buruk seperti hujan atau badai mengurangi minat pengguna untuk bersepeda.
+
+    4. **Cuaca Ekstrem** memiliki penyewaan sepeda paling sedikit, hanya **223 kali (0,01%)**. Ini menunjukkan bahwa hampir tidak ada pengguna yang menyewa sepeda dalam kondisi cuaca sangat buruk.
+
+    **Kesimpulan:**  
+    Jumlah penyewaan sepeda sangat dipengaruhi oleh kondisi cuaca. Pengguna lebih memilih menyewa sepeda saat cuaca cerah atau sedikit berawan, sementara cuaca ekstrem dan hujan menyebabkan penurunan signifikan dalam jumlah penyewaan.
+    """)
+
+# Analisis korelasi
+st.header("Analisis Korelasi Faktor Penyewaan Sepeda")
+
+# Menyiapkan data untuk analisis korelasi
+correlation_data = dataQuestion2[['temp', 'hum', 'windspeed', 'cnt']]
+correlation_matrix = correlation_data.corr()
+
+# Visualisasi matriks korelasi
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', ax=ax)
+plt.title("Matriks Korelasi Faktor Penyewaan Sepeda")
+st.pyplot(fig)
+
+with st.expander("Hasil Analisis Korelasi"):
+    st.write("""
+    Matriks korelasi menunjukkan hubungan antara suhu, kelembaban, kecepatan angin, dan jumlah penyewaan sepeda:
+    1. **Suhu (temp)**: Korelasi positif dengan jumlah penyewaan, menunjukkan bahwa suhu yang lebih hangat meningkatkan minat penyewaan.
+    2. **Kelembaban (hum)**: Korelasi negatif, menunjukkan bahwa kelembaban tinggi mengurangi minat penyewaan.
+    3. **Kecepatan Angin (windspeed)**: Korelasi negatif, menunjukkan bahwa angin kencang mengurangi minat penyewaan.
+
+    **Kesimpulan:**  
+    Faktor cuaca seperti suhu, kelembaban, dan kecepatan angin memiliki pengaruh signifikan terhadap jumlah penyewaan sepeda.
+    """)
+
+st.header("Analisis Time Series Penyewaan Sepeda")
+
+# Menyiapkan data time series
+time_series_data = day_data.set_index('dteday')['cnt']
+decomposition = seasonal_decompose(time_series_data, model='additive', period=365)
+
+# Visualisasi time series
+fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(12, 8))
+decomposition.trend.plot(ax=ax1)
+ax1.set_title('Trend')
+decomposition.seasonal.plot(ax=ax2)
+ax2.set_title('Seasonality')
+decomposition.resid.plot(ax=ax3)
+ax3.set_title('Residuals')
+time_series_data.plot(ax=ax4)
+ax4.set_title('Original Data')
+plt.tight_layout()
+st.pyplot(fig)
+
+with st.expander("Hasil Analisis Time Series"):
+    st.write("""
+    Analisis time series menunjukkan:
+    1. **Trend**: Ada peningkatan tren penyewaan sepeda dari waktu ke waktu.
+    2. **Seasonality**: Terlihat pola musiman dengan peningkatan penyewaan pada bulan-bulan tertentu.
+    3. **Residuals**: Variasi acak yang tidak dapat dijelaskan oleh tren atau musiman.
+
+    **Kesimpulan:**  
+    Tren yang meningkat menunjukkan pertumbuhan popularitas layanan sepeda, sementara pola musiman dapat digunakan untuk merencanakan promosi atau penyesuaian layanan.
+    """)
+
+# Clustering berdasarkan waktu dan cuaca
+st.header("Segmentasi Pengguna Berdasarkan Pola Penyewaan")
+
+# Menyiapkan data untuk clustering
+cluster_data = dataQuestion2[['hr', 'weathersit', 'cnt']]
+kmeans = KMeans(n_clusters=3, random_state=42)
+dataQuestion2['cluster'] = kmeans.fit_predict(cluster_data)
+
+# Visualisasi clustering
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.scatterplot(x='hr', y='cnt', hue='cluster', data=dataQuestion2, palette='viridis', ax=ax)
+plt.title("Segmentasi Pengguna Berdasarkan Pola Penyewaan")
+plt.xlabel("Jam (hr)")
+plt.ylabel("Jumlah Penyewaan (cnt)")
+st.pyplot(fig)
+
+with st.expander("Hasil Analisis Segmentasi Pengguna"):
+    st.write("""
+    Dengan menggunakan teknik clustering K-Means, kami mengidentifikasi tiga kelompok pengguna berdasarkan pola penyewaan sepeda:
+    1. **Cluster 0**: Pengguna dengan penyewaan rendah, biasanya pada malam hari atau saat cuaca buruk.
+    2. **Cluster 1**: Pengguna dengan penyewaan sedang, biasanya pada pagi atau sore hari.
+    3. **Cluster 2**: Pengguna dengan penyewaan tinggi, biasanya pada siang hari atau saat cuaca cerah.
+
+    **Kesimpulan:**  
+    Segmentasi ini membantu dalam memahami pola penggunaan sepeda dan dapat digunakan untuk menargetkan promosi atau layanan yang lebih spesifik.
+    """)
 
 # Pertanyaan 3: Perbedaan Penyewaan Sepeda antara Hari Libur dan Hari Kerja
 st.header("Pertanyaan 3: Perbedaan Penyewaan Sepeda antara Hari Libur dan Hari Kerja")
