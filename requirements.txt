@@ -1,0 +1,18 @@
+Library yang diperlukan :
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+from statsmodels.tsa.seasonal import seasonal_decompose
+from sklearn.cluster import KMeans
+
+
+Command untuk install :
+pip install numpy
+pip install pandas
+pip install matplotlib
+pip install seaborn
+pip install scipy
+pip install statsmodels
+pip install scikit-learn
