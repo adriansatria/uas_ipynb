@@ -397,6 +397,11 @@ plt.ylabel("Rata-Rata Penyewaan Sepeda")
 plt.legend(title="Jenis Hari", loc='upper right')
 st.pyplot(fig)
 
+with st.expander("Hasil Analisis Rata Rata Penyewaan Sepeda Berdasarkan Hari Libur dan Kerja"):
+    st.write("""
+    Statistik penyewaan sepeda secara keseluruhan menunjukkan perbedaan yang jelas antara hari libur (termasuk akhir pekan) dan hari kerja. Akhir pekan/liburan memiliki rata-rata penyewaan yang lebih tinggi, yang mengindikasikan peningkatan penggunaan untuk bersantai, sementara hari kerja menunjukkan rata-rata penyewaan yang lebih rendah, yang mungkin mencerminkan lebih banyak penggunaan yang bersifat fungsional atau yang berhubungan dengan perjalanan. Wawasan ini sangat berharga bagi bisnis penyewaan sepeda untuk memahami perilaku pelanggan, menyesuaikan strategi penetapan harga, dan merencanakan kampanye promosi untuk menargetkan segmen pengguna yang berbeda secara efektif sepanjang minggu.
+    """)
+
 # Pertanyaan 4: Musim dengan Potensi Terbesar untuk Promosi Layanan Sepeda
 st.header("Musim dengan Potensi Terbesar untuk Promosi Layanan Sepeda")
 
