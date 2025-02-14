@@ -361,6 +361,14 @@ ax2.grid(axis='y')
 fig2.tight_layout()  # Menghindari tampilan yang terpotong
 st.pyplot(fig2)
 
+with st.expander("Hasil Analisis Pengaruh Windspeed Terhadap Peminjaman Sepeda"):
+    st.write("""
+    Statistik deskriptif menunjukkan bahwa kolom windspeed memiliki nilai rata-rata tertentu dengan variasi data yang signifikan. Hal ini menunjukkan bahwa kecepatan angin bervariasi dari sangat rendah hingga tinggi dalam dataset.
+    1. Kecepatan angin (windspeed) memiliki hubungan negatif lemah dengan jumlah peminjaman sepeda. Angin kencang memang mengurangi jumlah peminjaman, tetapi tidak secara signifikan.
+    2. Pada kecepatan angin rendah, jumlah peminjaman lebih tinggi, sedangkan angin yang lebih kuat mengurangi aktivitas peminjaman.
+    3. Meskipun windspeed memiliki dampak kecil, faktor lain seperti suhu (temp), kelembapan (hum), dan kondisi cuaca (weathersit) juga berperan dalam memengaruhi jumlah peminjaman sepeda.
+    """)
+
 # Pertanyaan 3: Perbedaan Penyewaan Sepeda antara Hari Libur dan Hari Kerja
 st.header("Perbedaan Penyewaan Sepeda antara Hari Libur dan Hari Kerja")
 
